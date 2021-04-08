@@ -27,7 +27,7 @@ nWalkers = b
 
 #%%
 with open("shouldIplotT.csv",newline="") as csvfile:
-    shouldIplotT = list(csv.reader(csvfile))
+    shouldIplotT = list(csv.reader(csvfile))[0][0]
     shouldIplotT = (shouldIplotT == "true")
 #
 
@@ -40,8 +40,6 @@ if shouldIplotT:
     record_T = record_T.reshape(b, a)
     record_T = record_T[0]
 #
-
-#%%
 #%%
 fig, ax1 = plt.subplots()
 

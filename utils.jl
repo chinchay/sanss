@@ -1695,7 +1695,8 @@ function plotWalkers2(
     writedlm( "w_E.csv",  w_E, ',')
     writedlm( "record_T.csv",  record_T, ',')
     writedlm( "shouldIplotT.csv",  shouldIplotT, ',')
-    
+    println(shouldIplotT)
+
     run(`python toplot.py`)
 
 

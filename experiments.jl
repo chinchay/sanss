@@ -514,11 +514,12 @@ end
 ###########
 neighbors_EQ = 1 #10 #50
 nCheck_EQ = 100
-nRepeats = 2 #5 # 100
+nRepeats = 5 #5 # 100
 listSteps = [1000] #[100_000] #[200] #[400]#[1600] #50 # 32000 40000
 tempLength = 100 # 1 #100_000 #100_000 #100 #50 #100 ###stepsTconstant
 # scheme = "linear" # options: "linear", "constant" # for tempLength
-scheme = "scheme1"
+# scheme = "scheme1"
+scheme = "linear"
 # scheme = "constant" # options: "linear", "constant" # for tempLength
 # Tmax = 350 #350 #1400 #700 #350 #200 #1000 #3000 #1000
 Tmax = 800
