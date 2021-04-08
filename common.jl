@@ -4,9 +4,9 @@
 
 using DelimitedFiles # for writedlm()
 
-include("./myreadlammps.jl")
+include("./customreadlammps.jl")
 using .readLammpsModule
-using PyPlot
+# using PyPlot
 #
 using StatsBase
 using Statistics # for `std`

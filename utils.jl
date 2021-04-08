@@ -4,9 +4,11 @@
 
 # using DelimitedFiles # for writedlm()
 
-include("./myreadlammps.jl")
+include("./customreadlammps.jl")
 using .readLammpsModule
-using PyPlot
+# using PyPlot
+# using Plots
+using DelimitedFiles
 #
 using StatsBase
 using Statistics # for `std`
@@ -642,8 +644,8 @@ function RURS_1(
                         #
 
                         
-                        # nCfgNeighbors = getNeighborsToScan(T)
-                        nCfgNeighbors = 1
+                        nCfgNeighbors = getNeighborsToScan(T)
+                        # nCfgNeighbors = 1
                         # nCfgNeighbors = 100
                         # nCfgNeighbors = 40
                         # nCfgNeighbors = 100
@@ -1327,8 +1329,74 @@ function plotSubplot(
 
 end
 
+
+# plotSubplot(upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT, move1, move2, y1, y2)
+function plotSubplot(
+    upToMoves::Int,
+    namePlot::String,
+    factNumPoints::Int64,
+    w_E::Array{Float64,2},
+    record_T::Array{Float64,1},
+    shouldIplotT::Bool,
+    x1::Int,
+    x2::Int,
+    y1::Float64,
+    y2::Float64,
+    yTemp1::Float64,
+    yTemp2::Float64
+    )
+    closeall()
+
+    nWalkers = size(w_E)[2]
+    
+    # plot(rand(10), seriestype = :scatter, markersize=1.5, markerstrokewidth=0, markerstrokecolor=:blue, markercolor=:blue); v = plot!(twinx(),100rand(10))
+
+    for w in 1:nWalkers
+        y = [ w_E[i, w] for i in 1:upToMoves if i % factNumPoints == 0]
+        x = 1:length(y)
+        # https://stackoverflow.com/questions/55368045/how-to-add-the-markersize-argument-to-a-dataframe-plot
+        # instead of `markersize` as in matplotlib.Pyplot, here you have to use `s`:
+        if nWalkers <= 5
+            plot!( x, y, seriestype = :scatter, markersize=1.5, markerstrokewidth=0, markerstrokecolor=:auto, palette = :Dark2_5, label="")
+        else
+            plot!( x, y, seriestype = :scatter, markersize=1.5, markerstrokewidth=0, markerstrokecolor=:auto, markercolor=:black, label="")
+        end
+    end
+    plot!(xlabel="move")
+    plot!(ylabel="energy (eV)")
+    plot!(ylims=(y1, y2)) # zoom # ax1.set_ylim([-5600, -5550]) # zoom
+    
+    # a = x[1]
+    # b = x[end]
+    # d = (b - a) / 8
+    # ax1.set_xlim([ b - d, b ]) # zoom
+    plot!(xlims=(x1, x2)) # zoom
+
+    #
+    # if record_T !== nothing
+    if shouldIplotT
+        # y = [ record_T[i] for i in 1:length(record_T)  ]
+        # y = [ record_T[i] for i in 1:upToMoves ]
+        y = [ record_T[i] for i in 1:upToMoves if i % factNumPoints == 0 ]
+        x = 1:length(y)
+
+        plot!(twinx(), x, y, label="")
+        plot!(twinx(), ylabel="effective temperature (a.u.)") 
+        f = plot!(twinx(), ylims=(yTemp1, yTemp2))
+
+        #ax2.set_ylabel("effective temperature (a.u.)", color="b")
+        # ax2.tick_params(axis="y", colors="blue")
+    end
+    #fig.savefig("plotWalkers_zoom.png")
+    # fig.savefig( string(namePlot, "_zoom") )
+    
+    savefig(f, namePlot)
+    closeall()
+
+end
+
 # plotWalkers2(nWalkers, upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
-function plotWalkers2(
+function plotWalkers2_original(
                 # nWalkers::Int,
                 upToMoves::Int,
                 namePlot::String,
@@ -1585,6 +1653,51 @@ function plotWalkers2(
 
     PyPlot.close(fig)
     
+
+end
+
+# plotWalkers2(nWalkers, upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
+function plotWalkers2(
+    # nWalkers::Int,
+    upToMoves::Int,
+    namePlot::String,
+    factNumPoints::Int64,
+    w_E::Array{Float64,2},
+    record_T::Array{Float64,1},
+    shouldIplotT::Bool
+    )
+    #
+    # if nWalkers <= 5
+    #     if shouldIplotT
+    #         option = "le5_T"
+    #     else
+    #         option = "le5"
+    #     end
+    # else
+    #     if shouldIplotT
+    #         option = "g5_T"
+    #     else
+    #         option = "g5"
+    #     end
+    # end
+    
+    
+    
+    
+    writedlm( "upToMoves.csv",  upToMoves, ',')
+
+    open("namePlot.txt", "w") do io
+        write(io, namePlot)
+    end
+    
+    # println(namePlot)
+    writedlm( "factNumPoints",  factNumPoints, ',')
+    writedlm( "w_E.csv",  w_E, ',')
+    writedlm( "record_T.csv",  record_T, ',')
+    writedlm( "shouldIplotT.csv",  shouldIplotT, ',')
+    
+    run(`python toplot.py`)
+
 
 end
 
@@ -3359,7 +3472,7 @@ function experiment18(
             namePlot = string("EQ_", string(ii))
             shouldIplotT = true #false
             if nRepeats <= 5
-                plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
+                #plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
             end
             if displayMessages
                 println("upToMoves: ", upToMoves)
@@ -3460,7 +3573,7 @@ function experiment18(
             # upToMoves = 40_000
             record_T_scope = record_T[:]
             if nRepeats <= 5
-                plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
+                #plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
             end
 
             factNumPoints= 1
@@ -3469,7 +3582,7 @@ function experiment18(
             # upToMoves = steps * tempLength
             # upToMoves = 40_000
             if nRepeats <= 5
-                plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, listAcceptanceRate, shouldIplotT)
+                # plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, listAcceptanceRate, shouldIplotT)
             end
 
             
@@ -3488,7 +3601,7 @@ function experiment18(
         shouldIplotT = true
         upToMoves = steps * tempLength
         if nRepeats <= 5
-            plotWalkers2(upToMoves, namePlot, factNumPoints, lE, record_T_scope, shouldIplotT)
+            #plotWalkers2(upToMoves, namePlot, factNumPoints, lE, record_T_scope, shouldIplotT)
         end
         # return lE, record_T_scope
         #

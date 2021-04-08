@@ -4,7 +4,7 @@
 
 # using DelimitedFiles # for writedlm()
 
-include("./myreadlammps.jl")
+include("./customreadlammps.jl")
 using .readLammpsModule
 # using PyPlot
 #
@@ -14,6 +14,7 @@ using .readLammpsModule
 
 # using Random # for `randperm`
 using Test # for @test
+# using Plots
 
 include("./common.jl")
 include("./utils.jl")
@@ -501,3 +502,57 @@ end
 
 
 #
+####################
+##
+# Wednesday April 7th, 2021:
+# I forgot how the code was structures. I need to rearrange the code. So far,
+# experiment18() seems to be the best algorithm (although not aproved because "not stable") to find the 
+# ground state configuration. It uses `RURS_3_scheme1()` in util.jl, which uses 
+# getNeighborsToScan() which is key to find the GS fast. I am going to copy the previous lines 
+# so to avoid modifying the code.
+# ##
+###########
+neighbors_EQ = 1 #10 #50
+nCheck_EQ = 100
+nRepeats = 2 #5 # 100
+listSteps = [1000] #[100_000] #[200] #[400]#[1600] #50 # 32000 40000
+tempLength = 100 # 1 #100_000 #100_000 #100 #50 #100 ###stepsTconstant
+# scheme = "linear" # options: "linear", "constant" # for tempLength
+scheme = "scheme1"
+# scheme = "constant" # options: "linear", "constant" # for tempLength
+# Tmax = 350 #350 #1400 #700 #350 #200 #1000 #3000 #1000
+Tmax = 800
+# Tmax = 2.667
+Tmin = 1   #1    #10
+Tmax = float(Tmax)
+steps = listSteps[1]
+alpha =  (Tmin / Tmax) ^ (1 / steps)
+# alpha =  (Tmin / 800.0) ^ (1 / steps)  ## @@@@@@@@ <<<< AVISA QUE DEBISTE HABER USADO ESTE ALPHA @@@@@@@@@@@@@
+
+walkersBornEqual = false
+displayMessages = false
+
+# contador = 0
+# global n = 1
+# while ( contador == 0 ) && ( n <= 50 )
+#     global n += 1
+#     # EQ+RURS
+#     @time contador = experiment17( nRepeats, L1, L, Ne, Nv, ion1, ion2, removedSites, UionAionBlist, nWalkers, Tmax, tempLength, scheme, steps, alpha, neighbors_EQ, nCheck_EQ, displayMessages )
+# end
+
+for i in 1:1
+    # only RURS
+    @time contador = experiment15( nRepeats, L1, L, Ne, Nv, ion1, ion2, removedSites, UionAionBlist, nWalkers, Tmax, tempLength, scheme, steps, alpha, neighbors_EQ, nCheck_EQ, displayMessages )
+    
+    # EQ+RURS
+    # @time contador = experiment18( nRepeats, L1, L, Ne, Nv, ion1, ion2, removedSites, UionAionBlist, nWalkers, Tmax, tempLength, scheme, steps, alpha, neighbors_EQ, nCheck_EQ, displayMessages )
+end
+
+
+# print("finished.")
+# answer = string(contador)
+# run(`sayProgramFinished $answer`)
+
+
+#
+

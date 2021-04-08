@@ -1,0 +1,10 @@
+.DS_Store
+.python-version
+.vscode/settings.json
+*.png
+factNumPoints
+factNumPoints.csv
+namePlot.txt
+record_T.csv
+shouldIplotT.csv
+w_E.csv
