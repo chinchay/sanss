@@ -58,7 +58,8 @@ for w in range(nWalkers):
     #
 #
 ax1.set_ylabel("energy (eV)", color="k")
-ax1.set_ylim([-5600, -5150])
+# ax1.set_ylim([-5600, -5150])
+ax1.set_ylim([-45000, -40000])
 if factNumPoints == 1:
     xlabel = "move"
 else:

@@ -1691,7 +1691,7 @@ function plotWalkers2(
     end
     
     # println(namePlot)
-    writedlm( "factNumPoints",  factNumPoints, ',')
+    writedlm( "factNumPoints.csv",  factNumPoints, ',')
     writedlm( "w_E.csv",  w_E, ',')
     writedlm( "record_T.csv",  record_T, ',')
     writedlm( "shouldIplotT.csv",  shouldIplotT, ',')
@@ -2708,7 +2708,8 @@ function experiment15(
     alpha::Float64,
     neighbors_EQ::Int,
     nCheck_EQ::Int,
-    displayMessages::Bool
+    displayMessages::Bool,
+    plot::Bool
     )
     #
     refill0 = get_refill(L1, L, Nv, ion1, ion2, removedSites)
@@ -2731,7 +2732,8 @@ function experiment15(
     nTemp2 = zeros(Int64, Ne)
 
     contador = 0
-
+    lessEnergies = []
+    
     # nCheck_EQ = 100 #50 #100 #500 #1000 #3000 to be used in `equilibration3()`
 
     #
@@ -2834,6 +2836,7 @@ function experiment15(
             if energy < -5590.0
                 println("The following config has energy less")
                 println("energy_: ", energy)
+                append!(lessEnergies, energy)                
                 # println(refill)
                 # println("  ")
                 # println(sort(  [ refill[3, i] for i in 1:L ] ))
@@ -2859,7 +2862,9 @@ function experiment15(
         upToMoves = steps * tempLength
         # upToMoves = 40_000
         if nRepeats <= 5
-            plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
+            if plot
+                plotWalkers2(upToMoves, namePlot, factNumPoints, w_E, record_T, shouldIplotT)
+            end
         end
         #
         for j in 1:upToMoves
@@ -2873,10 +2878,12 @@ function experiment15(
     shouldIplotT = false
     upToMoves = steps * tempLength
     if nRepeats <= 5
-        plotWalkers2(upToMoves, namePlot, factNumPoints, lE, record_T_scope, shouldIplotT)
+        if plot
+            plotWalkers2(upToMoves, namePlot, factNumPoints, lE, record_T_scope, shouldIplotT)
+        end
     end
     # return lE, record_T_scope
-    return contador
+    return contador, lessEnergies
 end
 
 
