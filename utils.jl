@@ -514,13 +514,14 @@ function returnToPreviousOpt!(
 end
 
 function getNeighborsToScan(T::Float64)
-    if 100.0 < T 
-        return 1
-	elseif belongs(T, 30.0, 100.0)
-        return 100
-    elseif T < 30.0
-        return 1
-    end
+    return if belongs(T, 40.0, 100.0) 200 else 1 end
+#     if 100.0 < T 
+#         return 1
+# 	elseif belongs(T, 40.0, 100.0) # elseif belongs(T, 30.0, 100.0)
+#         return 200 # 100
+#     elseif T < 40.0 # elseif T < 30.0
+#         return 1
+#     end
 end
 
 # function getNeighborsToScan(T::Float64)
@@ -2709,7 +2710,8 @@ function experiment15(
     neighbors_EQ::Int,
     nCheck_EQ::Int,
     displayMessages::Bool,
-    plot::Bool
+    plot::Bool,
+    thresholdE::Float64
     )
     #
     refill0 = get_refill(L1, L, Nv, ion1, ion2, removedSites)
@@ -2739,9 +2741,7 @@ function experiment15(
     #
     # println("****** SEVERAL RUNINGS BEGINING WITH THE SAME CONFIGURATION ********")
     for ii in 1:nRepeats
-        if displayMessages
-            println("ii: ", ii)
-        end
+        println("ii: ", ii)
         
         # # this will make all `nRepeats` to begin with the same `refill0` configuration
         # myCopyRefill!(L, refill0, refill)
@@ -2833,7 +2833,7 @@ function experiment15(
                 println("energy_: ", energy)
             end
 
-            if energy < -5590.0
+            if energy < thresholdE
                 println("The following config has energy less")
                 println("energy_: ", energy)
                 append!(lessEnergies, energy)                
@@ -2845,7 +2845,9 @@ function experiment15(
             end
 
         end
-        println("times config < -5590: ", contador)
+        #
+        message = string("number of times configuration energy is less that the thresholdE=", thresholdE, " is : ", contador)
+        println(message)
         println("percentage: ", contador / nRepeats * 100, "%")
 
         # # copy w_r[1] to refill # <<< you see we are assuming nWalkers=1
